@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import hmac
 
@@ -31,15 +32,15 @@ class UserService:
         self.dao.delete(rid)
 
     def make_user_password_hash(self, password):
-        return hashlib.pbkdf2_hmac(
+        return base64.b64encode(hashlib.pbkdf2_hmac(
             'sha256',
             password.encode('utf-8'),
             PWD_HASH_SALT,
             PWD_HASH_ITERATIONS
-        )
+        ))
 
     def compare_passwords(self, password_hash, other_password) -> bool:
         return hmac.compare_digest(
-            password_hash,
+            base64.b64decode(password_hash),
             hashlib.pbkdf2_hmac('sha256', other_password.encode(), PWD_HASH_SALT, PWD_HASH_ITERATIONS)
         )
